@@ -10,9 +10,13 @@
     import headtext from "../src/assets/headtxt.svg";
 
     let adGroup, acdGroup, vadGroup, sortedData;
-    let width = 1080,
+    // Fixed design canvas (tuned on a 1440×900 MacBook). The SVG keeps this
+    // coordinate system and is scaled uniformly to the viewport width via CSS.
+    const width = 1440,
         height = 1920;
-    // $: width = (height / 4) * 3;
+    // Scroll range that was reachable on the reference screen
+    // (svg height − container height of 119vh at 900px tall).
+    const DESIGN_MAX_SCROLL = height - 900 * 1.19;
     let groupedData = [],
         xGroups = [];
     let yAxis, yScale, xAxis, xScale;
@@ -240,8 +244,13 @@
             .range([height - 450, 1100]);
         let container = document.getElementById("container");
         updateScrollTop = () => {
-            scrollTop = container.scrollTop; // 获取页面的滚动偏移量
-            console.log(scrollTop);
+            // Normalize scroll to 0..1 over the actual scrollable distance, then map
+            // back onto the reference screen's pixel range so the animation reaches
+            // the same end state on any monitor size.
+            const maxScroll = container.scrollHeight - container.clientHeight;
+            const progress =
+                maxScroll > 0 ? Math.min(container.scrollTop / maxScroll, 1) : 0;
+            scrollTop = progress * DESIGN_MAX_SCROLL;
             scrolldomain = d3
                 .scaleLinear()
                 .domain([0, 1200])
@@ -266,6 +275,7 @@
             // title.style.opacity = 0;
         };
         container.addEventListener("scroll", updateScrollTop);
+        window.addEventListener("resize", updateScrollTop);
         updateScrollTop();
 
         const scrollContainer = document.getElementById("container"); // 替换为实际容器的选择器
@@ -283,6 +293,11 @@
         //         container.scrollBy(0, 5); // 滚动容器内
         //     }, 100);
         // }, 1000); // 延迟 1 秒（1000 毫秒）
+
+        return () => {
+            container.removeEventListener("scroll", updateScrollTop);
+            window.removeEventListener("resize", updateScrollTop);
+        };
     });
 
     $: if (source) {
@@ -316,15 +331,13 @@
 <div
     id="container"
     class="chart-container"
-    bind:clientWidth={width}
     style="height: 119vh;overflow:scroll;margin-top:-9%"
 >
     <svg
         bind:this={svg}
-        {width}
-        {height}
         viewBox="0 0 {width} {height}"
-        style="background-color: #FAFAFA;position: relative;cursor: none;"
+        preserveAspectRatio="xMidYMin meet"
+        style="width: 100%; height: auto; display: block; background-color: #FAFAFA;position: relative;cursor: none;"
     >
         <g id="lines">
             <!-- yScale(d3.max(values, (d) => yValue(d))) -250 -->
