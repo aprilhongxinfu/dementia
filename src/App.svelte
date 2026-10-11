@@ -115,6 +115,19 @@
     {/each}
   </svg>
 </div> -->
+<!-- Shown instead of the poster on phones: the 1440-wide composition is not
+     readable at phone width, so visitors are asked to open it on a computer. -->
+<div class="mobile-notice" role="note">
+  <p class="mobile-notice__title">
+    Early Intervention: A Key to Fighting Dementia
+  </p>
+  <p class="mobile-notice__body">
+    This visualization is designed for larger screens. Please open it on a
+    desktop or laptop for the full experience.
+  </p>
+  <p class="mobile-notice__url">aprilhongxinfu.github.io/dementia</p>
+</div>
+
 <div class="chart-container">
   <!-- <Gradient {data} {text} {xValue} {yValue} {margin}></Gradient> -->
   <!-- <Head {data} {xValue} {yValue} {margin}></Head> -->
@@ -137,5 +150,48 @@
     padding: 0;
     background-color: #fafafa;
     cursor: none;
+  }
+
+  .mobile-notice {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .chart-container {
+      display: none;
+    }
+    .mobile-notice {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 0 28px;
+      box-sizing: border-box;
+      font-family: "Open Sans", sans-serif;
+      color: #1f1f1f;
+      cursor: auto;
+    }
+    .mobile-notice * {
+      cursor: auto;
+    }
+    .mobile-notice__title {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+    .mobile-notice__body {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #4a4a4a;
+      margin-bottom: 24px;
+    }
+    .mobile-notice__url {
+      font-size: 13px;
+      color: #7a7a7a;
+      user-select: all;
+      -webkit-user-select: all;
+    }
   }
 </style>
