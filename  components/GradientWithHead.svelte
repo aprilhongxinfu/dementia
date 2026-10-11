@@ -17,6 +17,16 @@
     // Scroll range that was reachable on the reference screen
     // (svg height − container height of 119vh at 900px tall).
     const DESIGN_MAX_SCROLL = height - 900 * 1.19;
+
+    // Actual size of the scroll container. On portrait-ish viewports (phones,
+    // portrait tablets, narrow windows) the width-fitted poster is shorter than
+    // the container, so nothing could scroll and the animation would never play.
+    // In that case the poster is pinned (sticky) and a spacer below it provides
+    // one container-height of scroll distance to drive the animation.
+    let containerWidth = 0,
+        containerHeight = 0;
+    $: posterHeight = (containerWidth * height) / width;
+    $: pinned = containerWidth > 0 && posterHeight < containerHeight;
     let groupedData = [],
         xGroups = [];
     let yAxis, yScale, xAxis, xScale;
@@ -331,13 +341,17 @@
 <div
     id="container"
     class="chart-container"
+    bind:clientWidth={containerWidth}
+    bind:clientHeight={containerHeight}
     style="height: 119vh;overflow:scroll;margin-top:-9%"
 >
     <svg
         bind:this={svg}
         viewBox="0 0 {width} {height}"
         preserveAspectRatio="xMidYMin meet"
-        style="width: 100%; height: auto; display: block; background-color: #FAFAFA;position: relative;cursor: none;"
+        style="width: 100%; height: auto; display: block; background-color: #FAFAFA; cursor: none; position: {pinned
+            ? 'sticky'
+            : 'relative'}; top: 0;"
     >
         <g id="lines">
             <!-- yScale(d3.max(values, (d) => yValue(d))) -250 -->
@@ -1686,6 +1700,9 @@
             </foreignObject>
         </g>
     </svg>
+    {#if pinned}
+        <div class="scroll-spacer" style="height: {containerHeight}px;"></div>
+    {/if}
 </div>
 
 <style>
